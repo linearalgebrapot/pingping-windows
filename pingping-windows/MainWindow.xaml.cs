@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -15,7 +16,7 @@ namespace PingPing___Windows
     {
         private Socket _server;
         private Thread _t;
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,6 +33,7 @@ namespace PingPing___Windows
                 if (i.AddressFamily == AddressFamily.InterNetwork)
                     userIp = i.ToString();
             }
+
             return userIp;
         }
 
@@ -39,7 +41,7 @@ namespace PingPing___Windows
         {
             Switch.Content = "종료";
             MessageBox.Show("작동이 시작되었습니다", "시작");
-            
+
             _t = new Thread(new ThreadStart(StartSocketConnection));
             _t.Start();
         }
@@ -52,19 +54,24 @@ namespace PingPing___Windows
                 _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 //바인딩
                 _server.Bind(new IPEndPoint(IPAddress.Any, 7777));
-                //리슨
-                _server.Listen(10);
-                //연결을 받아서 새 소켓 생성
-                var client = _server.Accept();
-                
+               
+
                 while (true)
                 {
+                    //리슨
+                    _server.Listen(10);
+                    //연결을 받아서 새 소켓 생성
+                    var client = _server.Accept();
+                    
                     var buff = new byte[1024];
+                    
                     //리시브
                     var data = client.Receive(buff);
                     var msg = Encoding.UTF8.GetString(buff, 0, data);
 
                     DoSomething(msg);
+                    
+                    client.Close();
                 }
             }
             catch (Exception e)
@@ -73,11 +80,17 @@ namespace PingPing___Windows
                 MessageBox.Show("작동이 종료되었습니다.", "종료");
             }
         }
-        
+
         private static void DoSomething(string msg)
         {
-            if(msg == "test")
+            if (msg == "test")
                 MessageBox.Show("테스트 메세지 전달 성공", "Test");
+            
+            else if (msg == "enter")
+            {
+                keybd_event(VK_RETURN, 0, 0, 0);
+                keybd_event(VK_RETURN, 0, 0x02, 0);
+            }
         }
 
         private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
@@ -90,5 +103,9 @@ namespace PingPing___Windows
         {
             _server.Close();
         }
+        
+        [DllImport("user32.dll")]
+        static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+        private const int VK_RETURN = 0x0D;
     }
 }
