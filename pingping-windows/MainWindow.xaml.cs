@@ -83,13 +83,23 @@ namespace PingPing___Windows
 
         private static void DoSomething(string msg)
         {
-            if (msg == "test")
-                MessageBox.Show("테스트 메세지 전달 성공", "Test");
-            
-            else if (msg == "enter")
+            switch (msg)
             {
-                keybd_event(VK_RETURN, 0, 0, 0);
-                keybd_event(VK_RETURN, 0, 0x02, 0);
+                case "test":
+                    MessageBox.Show("테스트 메세지 전달 성공", "Test");
+                    break;
+                case "left":
+                    keybd_event(VK_LBUTTON, 0, WM_KEYDOWN, 0);
+                    keybd_event(VK_LBUTTON, 0, WM_KEYUP, 0);
+                    break;
+                case "right":
+                    keybd_event(VK_RBUTTON, 0, WM_KEYDOWN, 0);
+                    keybd_event(VK_RBUTTON, 0, WM_KEYUP, 0);
+                    break;
+                case "start":
+                    keybd_event(VK_F5, 0, WM_KEYDOWN, 0);
+                    keybd_event(VK_F5, 0, WM_KEYUP, 0);
+                    break;
             }
         }
 
@@ -106,6 +116,10 @@ namespace PingPing___Windows
         
         [DllImport("user32.dll")]
         static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
-        private const int VK_RETURN = 0x0D;
+        private const int WM_KEYDOWN = 0x100;
+        private const int WM_KEYUP = 0x101;
+        private const int VK_LBUTTON = 0x01;
+        private const int VK_RBUTTON = 0x02;
+        private const int VK_F5 = 0x74;
     }
 }
