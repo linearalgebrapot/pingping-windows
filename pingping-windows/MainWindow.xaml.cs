@@ -24,7 +24,7 @@ namespace PingPing___Windows
 
         private static string GetUserIp()
         {
-            var userIp = "Not available, please check your network settings!";
+            var userIp = "주소를 불러올 수 없습니다. 네트워크 상태를 확인해주세요!";
             var host = Dns.GetHostEntry(Dns.GetHostName());
 
             foreach (var i in host.AddressList)
@@ -37,8 +37,8 @@ namespace PingPing___Windows
 
         private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            Switch.Content = "Off";
-            MessageBox.Show("작동 시작", "Turned On");
+            Switch.Content = "종료";
+            MessageBox.Show("작동이 시작되었습니다", "시작");
             
             _t = new Thread(new ThreadStart(StartSocketConnection));
             _t.Start();
@@ -52,26 +52,25 @@ namespace PingPing___Windows
                 _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 //바인딩
                 _server.Bind(new IPEndPoint(IPAddress.Any, 7777));
+                //리슨
+                _server.Listen(10);
+                //연결을 받아서 새 소켓 생성
+                var client = _server.Accept();
                 
                 while (true)
                 {
-                    //리슨
-                    _server.Listen(10);
-                    //연결을 받아서 새 소켓 생성
-                    var client = _server.Accept();
-                
                     var buff = new byte[1024];
                     //리시브
                     var data = client.Receive(buff);
                     var msg = Encoding.UTF8.GetString(buff, 0, data);
-                    
+
                     DoSomething(msg);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                MessageBox.Show("문제가 발생했습니다:(", "연결 실패");
+                MessageBox.Show("작동이 종료되었습니다.", "종료");
             }
         }
         
@@ -83,14 +82,13 @@ namespace PingPing___Windows
 
         private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            Switch.Content = "On";
-            MessageBox.Show("작동 종료", "Turned Off");
+            Switch.Content = "시작";
             StopSocketConnection();
         }
 
         private void StopSocketConnection()
         {
-            //_t.Abort();
+            _server.Close();
         }
     }
 }
