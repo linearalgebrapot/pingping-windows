@@ -30,8 +30,9 @@ namespace PingPing___Windows
 
             foreach (var i in host.AddressList)
             {
-                if (i.AddressFamily == AddressFamily.InterNetwork)
-                    userIp = i.ToString();
+                if (i.AddressFamily != AddressFamily.InterNetwork) continue;
+                userIp = i.ToString();
+                break;
             }
 
             return userIp;
@@ -88,17 +89,21 @@ namespace PingPing___Windows
                 case "test":
                     MessageBox.Show("테스트 메세지 전달 성공", "Test");
                     break;
-                case "left":
-                    keybd_event(VK_LBUTTON, 0, WM_KEYDOWN, 0);
-                    keybd_event(VK_LBUTTON, 0, WM_KEYUP, 0);
-                    break;
-                case "right":
-                    keybd_event(VK_RBUTTON, 0, WM_KEYDOWN, 0);
-                    keybd_event(VK_RBUTTON, 0, WM_KEYUP, 0);
-                    break;
                 case "start":
                     keybd_event(VK_F5, 0, WM_KEYDOWN, 0);
                     keybd_event(VK_F5, 0, WM_KEYUP, 0);
+                    break;
+                case "prev":
+                    keybd_event(VK_LEFT, 0, WM_KEYDOWN, 0);
+                    keybd_event(VK_LEFT, 0, WM_KEYUP, 0);
+                    break;
+                case "next":
+                    keybd_event(VK_RIGHT, 0, WM_KEYDOWN, 0);
+                    keybd_event(VK_RIGHT, 0, WM_KEYUP, 0);
+                    break;
+                case "end":
+                    keybd_event(VK_ESC, 0, WM_KEYDOWN, 0);
+                    keybd_event(VK_ESC, 0, WM_KEYUP, 0);
                     break;
             }
         }
@@ -118,8 +123,9 @@ namespace PingPing___Windows
         static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
         private const int WM_KEYDOWN = 0x100;
         private const int WM_KEYUP = 0x101;
-        private const int VK_LBUTTON = 0x01;
-        private const int VK_RBUTTON = 0x02;
+        private const int VK_LEFT = 0x25;
+        private const int VK_RIGHT = 0x27;
+        private const int VK_ESC = 0x1B;
         private const int VK_F5 = 0x74;
     }
 }
