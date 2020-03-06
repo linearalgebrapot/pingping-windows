@@ -46,7 +46,7 @@ namespace PingPing___Windows
             _t = new Thread(new ThreadStart(StartSocketConnection));
             _t.Start();
         }
-
+        
         private void StartSocketConnection()
         {
             try
@@ -78,45 +78,63 @@ namespace PingPing___Windows
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                MessageBox.Show("작동이 종료되었습니다.", "종료");
             }
         }
 
         private static void DoSomething(string msg)
         {
-            switch (msg)
+            var processList = Process.GetProcessesByName("POWERPNT");
+
+            if (processList.Length >= 1)
             {
-                case "test":
-                    MessageBox.Show("테스트 메세지 전달 성공", "Test");
-                    break;
-                case "start":
-                    keybd_event(VK_F5, 0, WM_KEYDOWN, 0);
-                    keybd_event(VK_F5, 0, WM_KEYUP, 0);
-                    break;
-                case "prev":
-                    keybd_event(VK_LEFT, 0, WM_KEYDOWN, 0);
-                    keybd_event(VK_LEFT, 0, WM_KEYUP, 0);
-                    break;
-                case "next":
-                    keybd_event(VK_RIGHT, 0, WM_KEYDOWN, 0);
-                    keybd_event(VK_RIGHT, 0, WM_KEYUP, 0);
-                    break;
-                case "end":
-                    keybd_event(VK_ESC, 0, WM_KEYDOWN, 0);
-                    keybd_event(VK_ESC, 0, WM_KEYUP, 0);
-                    break;
+                switch (msg)
+                {
+                    case "test":
+                        MessageBox.Show("테스트 메세지 전달 성공", "Test");
+                        break;
+                    case "start":
+                        keybd_event(VK_F5, 0, WM_KEYDOWN, 0);
+                        //keybd_event(VK_F5, 0, WM_KEYUP, 0);
+                        break;
+                    case "prev":
+                        keybd_event(VK_LEFT, 0, WM_KEYDOWN, 0);
+                        //keybd_event(VK_LEFT, 0, WM_KEYUP, 0);
+                        break;
+                    case "next":
+                        keybd_event(VK_RIGHT, 0, WM_KEYDOWN, 0);
+                        //keybd_event(VK_RIGHT, 0, WM_KEYUP, 0);
+                        break;
+                    case "end":
+                        keybd_event(VK_ESC, 0, WM_KEYDOWN, 0);
+                        //keybd_event(VK_ESC, 0, WM_KEYUP, 0);
+                        break;
+                }
             }
+            else
+            {
+                MessageBox.Show("먼저 파워포인트 프로그램을 실행해주세요!", "오류");
+            }
+            
         }
 
         private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
             Switch.Content = "시작";
+            MessageBox.Show("작동이 종료되었습니다.", "종료");
             StopSocketConnection();
         }
 
         private void StopSocketConnection()
         {
+            if(_server.Connected)
+                _server.Disconnect(false);
             _server.Close();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            StopSocketConnection();
+            Application.Current.Shutdown();
         }
         
         [DllImport("user32.dll")]
